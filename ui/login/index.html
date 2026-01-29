@@ -1,1 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiMPLe - Admin Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a', // Slate 900
+                        secondary: '#1e293b', // Slate 800
+                        accent: '#3b82f6', // Blue 500
+                        'accent-hover': '#2563eb', // Blue 600
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-primary min-h-screen flex items-center justify-center p-4">
+
+    <!-- Background Decoration (Optional, for "Modern" feel) -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-1/2 -left-1/2 w-[1000px] h-[1000px] bg-blue-900/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-900/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Login Card -->
+    <div
+        class="bg-secondary w-full max-w-[400px] rounded-2xl shadow-2xl border border-slate-700/50 relative z-10 overflow-hidden">
+
+        <!-- Header -->
+        <div class="p-8 pb-0 text-center">
+            <h1 class="text-4xl font-bold text-white tracking-tight mb-2">SiMPLe</h1>
+            <p class="text-slate-400 text-sm font-medium">Sistem Manajemen Pemenangan Legislatif</p>
+        </div>
+
+        <!-- Form Content -->
+        <div class="p-8 mt-2">
+
+            <!-- Step 1: Email Input -->
+            <div id="step-email" class="fade-in">
+                <div class="mb-6">
+                    <label for="email" class="block text-slate-300 text-sm font-medium mb-2">Email Address</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <input type="email" id="email"
+                            class="w-full bg-slate-900/50 border border-slate-600 text-white text-sm rounded-lg focus:ring-accent focus:border-accent block pl-10 p-2.5 placeholder-slate-500 transition-all duration-200"
+                            placeholder="admin@example.com" required>
+                    </div>
+                </div>
+
+                <button onclick="sendOtp()"
+                    class="w-full text-white bg-accent hover:bg-accent-hover font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40">
+                    Kirim OTP
+                </button>
+                <p class="mt-4 text-center text-xs text-slate-500">
+                    Kode OTP akan dikirim ke email Anda
+                </p>
+            </div>
+
+            <!-- Step 2: OTP Input -->
+            <div id="step-otp" class="hidden">
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="otp" class="block text-slate-300 text-sm font-medium">Kode OTP</label>
+                        <button onclick="backToEmail()"
+                            class="text-xs text-accent hover:text-accent-hover transition-colors">Ubah Email?</button>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">Kode OTP telah dikirim ke <span id="display-email"
+                            class="text-slate-300 font-medium">...</span></p>
+
+                    <div class="flex gap-2 justify-center">
+                        <input type="text" maxlength="6" id="otp-input"
+                            class="w-full bg-slate-900/50 border border-slate-600 text-white text-center text-xl font-bold tracking-widest rounded-lg focus:ring-accent focus:border-accent block p-2.5 placeholder-slate-600 transition-all duration-200"
+                            placeholder="000000">
+                    </div>
+                </div>
+
+                <button onclick="verifyLogin()"
+                    class="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all duration-200 shadow-lg shadow-green-500/20 hover:shadow-green-500/40">
+                    Verifikasi Login
+                </button>
+
+                <p class="mt-4 text-center text-xs text-slate-500">
+                    Tidak menerima kode? <a href="#" class="text-slate-400 hover:text-white transition-colors">Kirim
+                        ulang</a>
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-slate-900/30 p-4 border-t border-slate-700/50 text-center">
+            <p class="text-xs text-slate-600">&copy; 2024 SiMPLe Admin Portal</p>
+        </div>
+    </div>
+
+    <script>
+        function sendOtp() {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert('Silakan masukkan email Anda');
+                return;
+            }
+
+            // Validate email format simple
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Format email tidak valid');
+                return;
+            }
+
+            // UI Transition
+            document.getElementById('display-email').innerText = email;
+            document.getElementById('step-email').classList.add('hidden');
+
+            const otpStep = document.getElementById('step-otp');
+            otpStep.classList.remove('hidden');
+            otpStep.classList.add('fade-in');
+
+            // Focus OTP input
+            setTimeout(() => {
+                document.getElementById('otp-input').focus();
+            }, 100);
+        }
+
+        function backToEmail() {
+            document.getElementById('step-otp').classList.add('hidden');
+            const emailStep = document.getElementById('step-email');
+            emailStep.classList.remove('hidden');
+            emailStep.classList.add('fade-in');
+        }
+
+        function verifyLogin() {
+            const otp = document.getElementById('otp-input').value;
+            if (otp.length < 6) {
+                alert('Silakan masukkan 6 digit kode OTP');
+                return;
+            }
+            alert('Verifikasi Login: ' + otp);
+            // Add actual login logic here
+        }
+
+        // Auto-format for OTP (optional, just to keep it clean)
+        document.getElementById('otp-input').addEventListener('input', function (e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+</body>
+
+</html>
